@@ -1,8 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Sun, Moon, Zap, Brain, FileText, Globe, Check, AlertCircle } from 'lucide-react';
+import { Sun, Moon, Zap, Brain, FileText, Globe, AlertCircle } from 'lucide-react';
 
 type NullableString = string | null;
 
@@ -37,10 +36,13 @@ export default function Home() {
       : ['#1E40AF', '#7C3AED', '#0891B2', '#059669', '#D97706'];
     const particleArray: Particle[] = [];
 
+    const windowWidth = typeof window !== 'undefined' ? window.innerWidth : 1200;
+    const windowHeight = typeof window !== 'undefined' ? window.innerHeight : 800;
+
     for (let i = 0; i < 30; i++) {
       particleArray.push({
-        x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1200),
-        y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 800),
+        x: Math.random() * windowWidth,
+        y: Math.random() * windowHeight,
         vx: (Math.random() - 0.5) * 0.3,
         vy: (Math.random() - 0.5) * 0.3,
         size: Math.random() * 2 + 1,
@@ -75,19 +77,19 @@ export default function Home() {
     {
       title: 'HubSpot – AI Marketing',
       url: 'https://blog.hubspot.com/marketing/future-of-ai-marketing',
-      gradient: isDarkMode ? 'from-emerald-500/20 to-teal-500/20' : 'from-emerald-200/60 to-teal-200/60 shadow-lg shadow-emerald-200/30',
+      gradient: isDarkMode ? 'from-emerald-500/20 to-teal-500/20' : 'from-emerald-200/60 to-teal-200/60',
       icon: <Brain className="w-5 h-5" />
     },
     {
       title: 'FreeCodeCamp – JS Closures',
       url: 'https://www.freecodecamp.org/news/javascript-closure/',
-      gradient: isDarkMode ? 'from-blue-500/20 to-purple-500/20' : 'from-blue-200/60 to-purple-200/60 shadow-lg shadow-blue-200/30',
+      gradient: isDarkMode ? 'from-blue-500/20 to-purple-500/20' : 'from-blue-200/60 to-purple-200/60',
       icon: <FileText className="w-5 h-5" />
     },
     {
       title: 'Cursor – AI-First Code Editor',
       url: 'https://www.cursor.so/',
-      gradient: isDarkMode ? 'from-pink-500/20 to-rose-500/20' : 'from-pink-200/60 to-rose-200/60 shadow-lg shadow-pink-200/30',
+      gradient: isDarkMode ? 'from-pink-500/20 to-rose-500/20' : 'from-pink-200/60 to-rose-200/60',
       icon: <Zap className="w-5 h-5" />
     }
   ];
@@ -121,7 +123,10 @@ export default function Home() {
         body: JSON.stringify({ url: targetUrl })
       });
 
-      if (!res.ok) throw new Error(await res.text());
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(errorText);
+      }
       
       // Step 2: AI Analysis
       setProcessingStep('🤖 Generating AI summaries...');
@@ -132,12 +137,12 @@ export default function Home() {
       setSummaryEn(data.summaryEn ?? null);
       setSummaryUrdu(data.summary ?? null); 
       
-      
       setProcessingStep('✅ Analysis complete!');
       setTimeout(() => setProcessingStep(''), 2000);
       
-    } catch (err: any) {
-      setError(err.message ?? 'Something went wrong');
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Something went wrong';
+      setError(errorMessage);
       setProcessingStep('');
     } finally {
       setLoading(false);
@@ -150,7 +155,6 @@ export default function Home() {
     textSecondary: isDarkMode ? 'text-gray-300' : 'text-gray-700',
     textTertiary: isDarkMode ? 'text-gray-400' : 'text-gray-600',
     card: isDarkMode ? 'bg-gray-800/50' : 'bg-white/90 shadow-xl shadow-purple-100/50',
-    cardHover: isDarkMode ? 'hover:bg-gray-800/70' : 'hover:bg-white/95 hover:shadow-2xl hover:shadow-purple-200/50',
     border: isDarkMode ? 'border-gray-700/50' : 'border-purple-200/30',
     input: isDarkMode ? 'bg-gray-800/50 border-gray-700' : 'bg-white/80 border-purple-200 shadow-lg shadow-purple-100/50',
     gradient: isDarkMode ? 'from-blue-600 via-purple-600 to-pink-600' : 'from-blue-500 via-purple-500 to-pink-500'
@@ -182,22 +186,27 @@ export default function Home() {
 
       {/* Interactive particles */}
       <div className="absolute inset-0 pointer-events-none">
-        {particles.map((particle, i) => (
-          <div
-            key={i}
-            className="absolute rounded-full animate-pulse"
-            style={{
-              left: `${(particle.x / (typeof window !== 'undefined' ? window.innerWidth : 1200)) * 100}%`,
-              top: `${(particle.y / (typeof window !== 'undefined' ? window.innerHeight : 800)) * 100}%`,
-              width: particle.size,
-              height: particle.size,
-              backgroundColor: particle.color,
-              opacity: particle.opacity,
-              transform: `translate(-50%, -50%) scale(${1 + Math.sin(Date.now() * 0.001 + i) * 0.3})`,
-              animation: `float ${3 + i * 0.1}s ease-in-out infinite alternate`
-            }}
-          />
-        ))}
+        {particles.map((particle, i) => {
+          const windowWidth = typeof window !== 'undefined' ? window.innerWidth : 1200;
+          const windowHeight = typeof window !== 'undefined' ? window.innerHeight : 800;
+          
+          return (
+            <div
+              key={i}
+              className="absolute rounded-full animate-pulse"
+              style={{
+                left: `${(particle.x / windowWidth) * 100}%`,
+                top: `${(particle.y / windowHeight) * 100}%`,
+                width: particle.size,
+                height: particle.size,
+                backgroundColor: particle.color,
+                opacity: particle.opacity,
+                transform: `translate(-50%, -50%) scale(${1 + Math.sin(Date.now() * 0.001 + i) * 0.3})`,
+                animation: `float ${3 + i * 0.1}s ease-in-out infinite alternate`
+              }}
+            />
+          );
+        })}
       </div>
 
       {/* Mouse follower effect */}
@@ -286,24 +295,24 @@ export default function Home() {
                       </div>
                     </div>
                   </div>
-                  <Button
+                  <button
                     onClick={() => fetchSummary(url)}
                     disabled={loading || !url.trim()}
-                    className={`w-full bg-gradient-to-r ${themeClasses.gradient} hover:opacity-90 py-4 rounded-xl font-bold text-lg shadow-lg transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:hover:scale-100`}
+                    className={`w-full bg-gradient-to-r ${themeClasses.gradient} hover:opacity-90 py-4 rounded-xl font-bold text-lg shadow-lg transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:hover:scale-100 text-white`}
                   >
                     {loading ? (
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center justify-center gap-3">
                         <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                         <span>Analyzing...</span>
                       </div>
                     ) : (
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center justify-center gap-3">
                         <Brain className="w-5 h-5" />
                         <span>Generate Summary</span>
                         <Zap className="w-5 h-5" />
                       </div>
                     )}
-                  </Button>
+                  </button>
                   
                   {/* Processing step indicator */}
                   {loading && processingStep && (
@@ -319,7 +328,7 @@ export default function Home() {
               <div className={`${themeClasses.card} ${themeClasses.border} border backdrop-blur-xl rounded-3xl p-8 shadow-xl`}>
                 <h3 className={`text-xl font-bold ${themeClasses.text} mb-4`}>Quick Demos</h3>
                 <div className="space-y-3">
-                  {predefined.map((item, index) => (
+                  {predefined.map((item) => (
                     <button
                       key={item.url}
                       onClick={() => {
@@ -379,7 +388,7 @@ export default function Home() {
                     </div>
                     <h3 className={`text-2xl font-bold ${themeClasses.text}`}>Extracted Content</h3>
                   </div>
-                  <div className={`${isDarkMode ? 'bg-gray-900/50' : 'bg-gray-100/50'} rounded-xl p-6 max-h-80 overflow-y-auto custom-scrollbar`}>
+                  <div className={`${isDarkMode ? 'bg-gray-900/50' : 'bg-gray-100/50'} rounded-xl p-6 max-h-80 overflow-y-auto`}>
                     <p className={`${themeClasses.textSecondary} leading-relaxed whitespace-pre-wrap`}>
                       {content}
                     </p>
@@ -402,7 +411,7 @@ export default function Home() {
                       <span className="w-3 h-3 bg-blue-500 rounded-full"></span>
                       English Summary
                     </h4>
-                    <div className={`${isDarkMode ? 'bg-blue-500/10 border-blue-500/20' : 'bg-gradient-to-r from-blue-100 to-blue-200 border-blue-300 shadow-lg shadow-blue-200/50'} rounded-xl p-6 border`}>
+                    <div className={`${isDarkMode ? 'bg-blue-500/10 border-blue-500/20' : 'bg-gradient-to-r from-blue-100 to-blue-200 border-blue-300'} rounded-xl p-6 border`}>
                       <p className={`${themeClasses.textSecondary} leading-relaxed whitespace-pre-wrap`}>
                         {summaryEn}
                       </p>
@@ -416,7 +425,7 @@ export default function Home() {
                       <span className="w-3 h-3 bg-pink-500 rounded-full"></span>
                       اردو خلاصہ
                     </h4>
-                    <div className={`${isDarkMode ? 'bg-pink-500/10 border-pink-500/20' : 'bg-gradient-to-r from-pink-100 to-rose-200 border-pink-300 shadow-lg shadow-pink-200/50'} rounded-xl p-6 border`}>
+                    <div className={`${isDarkMode ? 'bg-pink-500/10 border-pink-500/20' : 'bg-gradient-to-r from-pink-100 to-rose-200 border-pink-300'} rounded-xl p-6 border`}>
                       <p className={`${themeClasses.textSecondary} leading-relaxed whitespace-pre-wrap text-right`} dir="rtl">
                         {summaryUrdu}
                       </p>
@@ -458,24 +467,6 @@ export default function Home() {
         @keyframes float {
           0%, 100% { transform: translateY(0px) rotate(0deg); }
           50% { transform: translateY(-8px) rotate(180deg); }
-        }
-        
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 6px;
-        }
-        
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: ${isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'};
-          border-radius: 3px;
-        }
-        
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: ${isDarkMode ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.3)'};
-          border-radius: 3px;
-        }
-        
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: ${isDarkMode ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)'};
         }
       `}</style>
     </div>
