@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
     /* ─── 5. Respond to client ─── */
     return NextResponse.json({ content, summaryEn, summary: summaryUr });
 
-  } catch (err: any) {
+  } catch (err) {
     console.error("Summarise route error:", err);
     return NextResponse.json({ message: "Something went wrong." }, { status: 500 });
   }
